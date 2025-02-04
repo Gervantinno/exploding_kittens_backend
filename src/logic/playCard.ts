@@ -1,4 +1,5 @@
 /*
+import socket from './../../frontend/src/shared/api/socket';
 Attack card - End your turn(s) without drawing and force the next player to take two turns in a row.
 Cat card - These can be collected as two or three of a kind and used to steal from other players. (tacocat, catermellon, hairy potato cat, bearded cat)
 Defuse card - If you drew an Exploding Kitten, you can play this card instead of exploding.
@@ -10,61 +11,10 @@ Shuffle card - Shuffle the Draw Pile without viewing the cards until told to sto
 Skip card - Immediately end your turn without drawing a card.
 */
 
-interface ICard {
-  id: string;
-  name:
-    | "attack"
-    | "tacocat"
-    | "catermellon"
-    | "potato cat"
-    | "bearded cat"
-    | "defuse"
-    | "explode"
-    | "favor"
-    | "nope"
-    | "future"
-    | "shuffle"
-    | "skip";
-}
-
-interface IPlayer {
-  id: string;
-  name: string;
-  cards: ICard[];
-}
-
-interface IGameState {
-  players: IPlayer[];
-  deck: ICard[];
-  currentPlayer: string;
-}
-
-const games: { [gameId: string]: IGameState } = {};
-
-const createNewGame = (): IGameState => ({
-  players: [],
-  deck: [],
-  currentPlayer: "",
-});
-
-export interface joinGameProps {
-  gameId: string;
-  newPlayer: IPlayer;
-}
-
-// Подключение к игре
-export const joinGame = ({ gameId, newPlayer }: joinGameProps) => {
-  if (!games[gameId]) {
-    // Нужно создать игру сначала
-    games[gameId] = createNewGame();
-  }
-
-  const game = games[gameId];
-
-  game.players = [...game.players, newPlayer];
-
-  console.log(`${newPlayer.name} joined the game`);
-};
+import { Socket } from "dgram";
+import { DefaultEventsMap } from "socket.io";
+import { ICard, IPlayer } from "./baseTypes";
+import { games } from ".";
 
 export interface playCardProps {
   gameId: string;
@@ -78,7 +28,7 @@ export const playCard = ({ gameId, player, card }: playCardProps) => {
   const game = games[gameId];
 
   // Проверяем что его ход
-  if (game.turnStack[0] !== player.id) return;
+  // if (game.turnStack[0] !== player.id) return;
 
   // Играем карту (применяем эффект, перемещаем ее в сброс)
 

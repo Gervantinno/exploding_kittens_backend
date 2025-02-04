@@ -2,7 +2,9 @@ import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
-import { joinGame, joinGameProps } from "./gameLogic";
+import { leaveGame, leaveGameProps } from "./logic/leaveGame";
+import { joinGame, joinGameProps } from "./logic/joinGame";
+import { updateGame } from "./logic/updateGames";
 
 const app = express();
 const server = http.createServer(app);
@@ -28,15 +30,23 @@ io.on("connection", (socket) => {
 
   // Handle a player joining the game
   socket.on("join-game", (body: joinGameProps) => {
-    joinGame(body);
+    joinGame({ ...body, socket });
+  });
+
+  // Handle a player joining the game
+  socket.on("update-game", (gameId: string) => {
+    updateGame({ gameId, socket });
   });
 
   // Handle game events
   socket.on("play-card", (data) => {
-    playCard();
+    // playCard();
   });
 
-  // Handle disconnection
+  socket.on("leave-game", (body: leaveGameProps) => {
+    leaveGame({ ...body, socket });
+  });
+
   socket.on("disconnect", () => {
     console.log(`User disconnected: ${socket.id}`);
   });
